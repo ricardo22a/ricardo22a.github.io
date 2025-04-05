@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Família Forte - Apoio</title>
+    <style>
+        :root {
+            --primary-color: #3a506b;
+            --secondary-color: #5bc0be;
+            --accent-color: #ff6b6b;
+            --text-color: #2b2d42;
+            --bg-color: #f0f4f8;
+            --card-color: #ffffff;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: none;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+        
+        /* Safari specific tweaks */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                height: -webkit-fill-available;
+                padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            }
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            padding-top: max(15px, env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .header-text {
+            flex: 1;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 12px;
+            margin: 0;
+            opacity: 0.8;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 15px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            margin-top: 70px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .message {
+            max-width: 85%;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .received {
+            background-color: var(--card-color);
+            align-self: flex-start;
+            border-top-left-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .sent {
+            background-color: #d6e4ff;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .system-message {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            margin: 15px auto;
+            max-width: 90%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(91,192,190,0.3);
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background-color: var(--card-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .option-btn:active {
+            transform: scale(0.98);
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .time {
+            font-size: 11px;
+            color: #7b8b9a;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 12px;
+            background-color: var(--card-color);
+            width: fit-content;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .emergency-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(255,107,107,0.3);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .emergency-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .psychoeducation {
+            background-color: #fff9e6;
+            border-left: 4px solid #ffd166;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .psychoeducation-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .care-icon {
+            font-size: 18px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        /* iOS specific tweaks */
+        input, textarea, button {
+            -webkit-appearance: none;
+            border-radius: 0;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://i.imgur.com/JYQ3W3d.png" alt="Logo">
+        <div class="header-text">
+            <h1>Família Forte</h1>
+            <p>Apoio para familiares</p>
+        </div>
+    </div>
+    
+    <div class="content" id="content">
+        <div class="system-message">
+            <strong>💙 Você não está sozinho(a)</strong><br>
+            Segundo a metodologia CRAFT, famílias que recebem apoio adequado têm 70% mais chances de ajudar seus entes queridos na recuperação.
+        </div>
+        
+        <div class="options" id="mainOptions">
+            <div class="option-btn" data-option="1">1️⃣ Meu familiar está em crise</div>
+            <div class="option-btn" data-option="2">2️⃣ Como estabelecer limites</div>
+            <div class="option-btn" data-option="3">3️⃣ Encontrar grupos de apoio</div>
+            <div class="option-btn" data-option="4">4️⃣ Autocuidado para familiares</div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    </div>
+
+    <script>
+        // Cache DOM elements
+        const content = document.getElementById('content');
+        const mainOptions = document.getElementById('mainOptions');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Function to add message with smooth scroll
+        function addMessage(type, text) {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            content.appendChild(message);
+            
+            // Scroll to bottom with smooth behavior
+            setTimeout(() => {
+                content.scrollTo({
+                    top: content.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+            
+            return message;
+        }
+        
+        // Function to show system message
+        function showSystemMessage(text) {
+            const message = document.createElement('div');
+            message.className = 'system-message';
+            message.innerHTML = text;
+            content.appendChild(message);
+            
+            setTimeout(() => {
+                content.scrollTo({
+                    top: content.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+            
+            return message;
+        }
+        
+        // Function to show options
+        function showOptions(options) {
+            const container = document.createElement('div');
+            container.className = 'options';
+            
+            options.forEach(option => {
+                const btn = document.createElement('div');
+                btn.className = option.emergency ? 'emergency-btn' : 'option-btn';
+                btn.innerHTML = option.text;
+                btn.dataset.option = option.value;
+                container.appendChild(btn);
+                
+                btn.addEventListener('click', function() {
+                    option.action();
+                });
+            });
+            
+            content.appendChild(container);
+            setTimeout(() => {
+                content.scrollTo({
+                    top: content.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+            
+            return container;
+        }
+        
+        // Handle option clicks
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const option = this.dataset.option;
+                
+                // Hide main options
+                mainOptions.style.display = 'none';
+                
+                // Show typing indicator
+                typingIndicator.style.display = 'flex';
+                content.scrollTo({
+                    top: content.scrollHeight,
+                    behavior: 'smooth'
+                });
+                
+                // Add user message
+                setTimeout(() => {
+                    let userMessage;
+                    if (option === '1') {
+                        userMessage = addMessage('received', '1️⃣ Meu familiar está em crise<div class="time">'+getCurrentTime()+'</div>');
+                    } else if (option === '2') {
+                        userMessage = addMessage('received', '2️⃣ Como estabelecer limites<div class="time">'+getCurrentTime()+'</div>');
+                    } else if (option === '3') {
+                        userMessage = addMessage('received', '3️⃣ Encontrar grupos de apoio<div class="time">'+getCurrentTime()+'</div>');
+                    } else if (option === '4') {
+                        userMessage = addMessage('received', '4️⃣ Autocuidado para familiares<div class="time">'+getCurrentTime()+'</div>');
+                    }
+                    
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    // Show response after delay
+                    setTimeout(() => {
+                        if (option === '1') {
+                            showSystemMessage('🚨 <strong>Protocolo de Apoio (CRAFT):</strong><div class="psychoeducation"><div class="psychoeducation-title">O que fazer agora:</div>1. Mantenha a calma - sua serenidade é contagiosa<br>2. Evite discussões quando estiver sob efeito<br>3. Ofereça ajuda médica, não julgamento</div>');
+                            
+                            setTimeout(() => {
+                                showOptions([
+                                    {
+                                        text: '📞 Ligar para o CAPS AD',
+                                        value: 'caps',
+                                        emergency: true,
+                                        action: function() {
+                                            addMessage('received', '📞 Ligar para o CAPS AD<div class="time">'+getCurrentTime()+'</div>');
+                                            setTimeout(() => {
+                                                showSystemMessage('☎️ <strong>Ligue para 136</strong><br>Central de atendimento do SUS que direcionará para o CAPS mais próximo');
+                                            }, 800);
+                                        }
+                                    },
+                                    {
+                                        text: '👨‍👩‍👧‍👦 Falar com grupo de apoio',
+                                        value: 'grupo',
+                                        emergency: true,
+                                        action: function() {
+                                            addMessage('received', '👨‍👩‍👧‍👦 Falar com grupo de apoio<div class="time">'+getCurrentTime()+'</div>');
+                                            setTimeout(() => {
+                                                showSystemMessage('🤝 <strong>Amor-Exigente 24h:</strong><br>Disque 0800 022 2001<br><em>Atendimento gratuito</em>');
+                                            }, 800);
+                                        }
+                                    },
+                                    {
+                                        text: 'Voltar ao menu',
+                                        value: 'back',
+                                        action: function() {
+                                            location.reload();
+                                        }
+                                    }
+                                ]);
+                            }, 500);
+                        }
+                        else if (option === '2') {
+                            showSystemMessage('<strong>🏡 Limites saudáveis:</strong><div class="psychoeducation"><div class="psychoeducation-title">Frase-modelo:</div><em>"Te amo, mas não posso financiar seu vício. Estarei aqui quando você quiser tratamento."</em><div style="margin-top:10px;"><span class="care-icon">📌</span> Não pague dívidas<br><span class="care-icon">📌</span> Não minta para protegê-lo<br><span class="care-icon">📌</span> Mantenha suas rotinas saudáveis</div></div>');
+                        }
+                        else if (option === '3') {
+                            showSystemMessage('<strong>🤝 Grupos recomendados:</strong><div style="text-align:left;margin-top:10px;"><strong>Amor-Exigente:</strong> Encontre reuniões próximas<br><em>Segundas e quintas, 19h</em><div style="margin:10px 0;border-top:1px dashed #ccc;padding-top:10px;"><strong>CAPS AD:</strong> Apoio profissional gratuito<br><em>Disque 136 para localizar</em></div></div>');
+                        }
+                        else if (option === '4') {
+                            showSystemMessage('<strong>✋ Você também precisa de cuidado:</strong><div class="psychoeducation"><div class="psychoeducation-title">Sinais de desgaste:</div>- Insônia constante<br>- Isolamento social<br>- Negligenciar sua saúde<div style="margin-top:10px;color:#3a506b;"><strong>Atividade de hoje:</strong> Caminhe 15 minutos e ligue para um amigo</div></div>');
+                        }
+                    }, 500);
+                }, 1500);
+            });
+        });
+        
+        // Get current time in HH:MM format
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+        
+        // Prevent zooming on double-tap
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        // iOS hover fix
+        document.addEventListener('touchstart', function() {}, true);
+    </script>
+</body>
+</html>
