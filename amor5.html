@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Libertas - Recuperação</title>
+    <style>
+        :root {
+            --primary: #075e54;
+            --secondary: #128c7e;
+            --accent: #25d366;
+            --text: #333;
+            --bg: #e5ddd5;
+            --card: #fff;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            padding-top: max(15px, env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 15px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            margin-top: 70px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background-image: url('https://web.whatsapp.com/img/bg-chat-tile-light_a4be512e7195b6b733d9110b408f075d.png');
+        }
+        
+        .message {
+            max-width: 85%;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .received {
+            background-color: var(--card);
+            align-self: flex-start;
+            border-top-left-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .system-message {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            margin: 15px auto;
+            max-width: 90%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background-color: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .option-btn:active {
+            transform: scale(0.98);
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .time {
+            font-size: 11px;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 12px;
+            background-color: var(--card);
+            width: fit-content;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .emergency-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+        }
+        
+        .prayer-btn {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            margin: 5px 0;
+            text-align: center;
+            font-size: 15px;
+        }
+        
+        .meditation-card {
+            background-color: #fff9e6;
+            border-left: 4px solid #f39c12;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://i.imgur.com/JQ9pRoN.png" alt="Logo">
+        <div>
+            <h1>Libertas</h1>
+            <p style="font-size: 12px;">Recuperação Dia a Dia</p>
+        </div>
+    </div>
+    
+    <div class="content" id="content">
+        <div class="system-message">
+            <strong>🕊️ Bem-vindo ao Libertas</strong><br>
+            Seu companheiro de recuperação com NA, Estoicismo e Fé.
+        </div>
+        
+        <div class="options" id="mainOptions">
+            <div class="option-btn" data-option="crisis">🚨 Crise ou Vontade</div>
+            <div class="option-btn" data-option="sobriety">📅 Registrar Sobriedade</div>
+            <div class="option-btn" data-option="meditation">🧘 Meditação do Dia</div>
+            <div class="option-btn" data-option="community">👥 Falar com Voluntário</div>
+            <div class="option-btn" data-option="progress">📊 Meu Progresso</div>
+            <div class="option-btn" data-option="tools">🧰 Ferramentas</div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const content = document.getElementById('content');
+        const mainOptions = document.getElementById('mainOptions');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Estado do app
+        let soberDays = localStorage.getItem('soberDays') || 0;
+        let lastSoberDate = localStorage.getItem('lastSoberDate') || '';
+        
+        // Esconder typing indicator inicialmente
+        typingIndicator.classList.add('hidden');
+        
+        // Funções auxiliares
+        function showTyping() {
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+        }
+        
+        function hideTyping() {
+            typingIndicator.classList.add('hidden');
+        }
+        
+        function scrollToBottom() {
+            setTimeout(() => {
+                content.scrollTo({
+                    top: content.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+        
+        function addMessage(type, text) {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            content.appendChild(message);
+            scrollToBottom();
+            return message;
+        }
+        
+        function showSystemMessage(text) {
+            const message = document.createElement('div');
+            message.className = 'system-message';
+            message.innerHTML = text;
+            content.appendChild(message);
+            scrollToBottom();
+            return message;
+        }
+        
+        function createOptions(options) {
+            const container = document.createElement('div');
+            container.className = 'options';
+            
+            options.forEach(option => {
+                const btn = document.createElement('div');
+                btn.className = option.class || 'option-btn';
+                btn.innerHTML = option.text;
+                btn.dataset.option = option.value;
+                container.appendChild(btn);
+                
+                btn.addEventListener('click', function() {
+                    option.action();
+                });
+            });
+            
+            content.appendChild(container);
+            scrollToBottom();
+            return container;
+        }
+        
+        // Menu principal
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const option = this.dataset.option;
+                mainOptions.style.display = 'none';
+                showTyping();
+                
+                setTimeout(() => {
+                    hideTyping();
+                    
+                    if (option === 'crisis') {
+                        showCrisisMenu();
+                    } else if (option === 'sobriety') {
+                        showSobrietyMenu();
+                    } else if (option === 'meditation') {
+                        showMeditationMenu();
+                    } else if (option === 'community') {
+                        showCommunityMenu();
+                    } else if (option === 'progress') {
+                        showProgressMenu();
+                    } else if (option === 'tools') {
+                        showToolsMenu();
+                    }
+                }, 1500);
+            });
+        });
+        
+        // Menus de funcionalidades
+        function showCrisisMenu() {
+            addMessage('received', '🚨 Crise ou Vontade<div class="time">Agora</div>');
+            
+            setTimeout(() => {
+                showSystemMessage('<strong>Você não está sozinho!</strong> Vamos superar isso juntos:');
+                
+                setTimeout(() => {
+                    createOptions([
+                        {
+                            text: '🙏 Oração de Serenidade',
+                            class: 'prayer-btn',
+                            value: 'serenity',
+                            action: function() {
+                                showPrayer('Serenidade', 
+                                    '"Deus, concedei-me a serenidade para aceitar as coisas que não posso mudar, coragem para mudar as que posso, e sabedoria para reconhecer a diferença."<br><br>— Reinhold Niebuhr');
+                            }
+                        },
+                        {
+                            text: '✝️ Oração de São Miguel',
+                            class: 'prayer-btn',
+                            value: 'michael',
+                            action: function() {
+                                showPrayer('São Miguel', 
+                                    '"São Miguel Arcanjo, defendei-nos no combate. Sede nosso refúgio contra as maldades e ciladas do demônio. Ordene-lhe Deus, instantemente o pedimos. E vós, Príncipe da milícia celeste, pelo poder divino, precipitai no inferno a Satanás e aos outros espíritos malignos que andam pelo mundo para perder as almas. Amém."');
+                            }
+                        },
+                        {
+                            text: '📞 Ligar para meu padrinho',
+                            value: 'call',
+                            action: function() {
+                                addMessage('received', '📞 Ligar para meu padrinho<div class="time">Agora</div>');
+                                showSystemMessage('🔔 Notificação enviada ao seu padrinho. Ele deve entrar em contato em breve.');
+                            }
+                        },
+                        {
+                            text: '💪 Lembrar meu propósito',
+                            value: 'purpose',
+                            action: function() {
+                                showStoicQuote();
+                            }
+                        },
+                        {
+                            text: '⬅️ Voltar ao menu',
+                            value: 'back',
+                            action: function() {
+                                resetToMainMenu();
+                            }
+                        }
+                    ]);
+                }, 500);
+            }, 500);
+        }
+        
+        function showSobrietyMenu() {
+            addMessage('received', '📅 Registrar Sobriedade<div class="time">Hoje</div>');
+            
+            setTimeout(() => {
+                soberDays = parseInt(soberDays) + 1;
+                localStorage.setItem('soberDays', soberDays);
+                localStorage.setItem('lastSoberDate', new Date().toLocaleDateString());
+                
+                showSystemMessage(`✅ <strong>Dia ${soberDays} de sobriedade!</strong><br>"Um dia de cada vez" — NA`);
+                
+                setTimeout(() => {
+                    const quote = getRandomStoicQuote();
+                    showSystemMessage(`💭 <strong>Reflexão Estoica:</strong><br>"${quote}"`);
+                    
+                    setTimeout(() => {
+                        createOptions([
+                            {
+                                text: '📝 Compartilhar conquista',
+                                value: 'share',
+                                action: function() {
+                                    showSystemMessage('📢 Sua conquista foi compartilhada com seu grupo de apoio!');
+                                }
+                            },
+                            {
+                                text: '⬅️ Voltar ao menu',
+                                value: 'back',
+                                action: function() {
+                                    resetToMainMenu();
+                                }
+                            }
+                        ]);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        function showMeditationMenu() {
+            addMessage('received', '🧘 Meditação do Dia<div class="time">Hoje</div>');
+            
+            setTimeout(() => {
+                const meditation = getDailyMeditation();
+                const card = document.createElement('div');
+                card.className = 'meditation-card';
+                card.innerHTML = `
+                    <strong>${meditation.title}</strong>
+                    <p style="margin-top:8px;">${meditation.text}</p>
+                    <p style="margin-top:8px;font-style:italic;color:#7f8c8d;">${meditation.source}</p>
+                `;
+                content.appendChild(card);
+                scrollToBottom();
+                
+                setTimeout(() => {
+                    createOptions([
+                        {
+                            text: '🔄 Nova meditação',
+                            value: 'new',
+                            action: function() {
+                                showMeditationMenu();
+                            }
+                        },
+                        {
+                            text: '⬅️ Voltar ao menu',
+                            value: 'back',
+                            action: function() {
+                                resetToMainMenu();
+                            }
+                        }
+                    ]);
+                }, 500);
+            }, 500);
+        }
+        
+        function showCommunityMenu() {
+            addMessage('received', '👥 Falar com Voluntário<div class="time">Agora</div>');
+            
+            setTimeout(() => {
+                showSystemMessage('🔍 Conectando você com um voluntário disponível...');
+                
+                setTimeout(() => {
+                    showSystemMessage('👤 <strong>Maria (3 anos limpa)</strong> está online e disponível para conversar');
+                    
+                    setTimeout(() => {
+                        createOptions([
+                            {
+                                text: '💬 Iniciar conversa',
+                                value: 'chat',
+                                action: function() {
+                                    showSystemMessage('💬 Chat iniciado com Maria. Digite sua mensagem abaixo:');
+                                    // Aqui iria um campo de input de mensagem
+                                }
+                            },
+                            {
+                                text: '📞 Ligar agora',
+                                value: 'call',
+                                action: function() {
+                                    showSystemMessage('📞 Conectando chamada...<br><small>Lembre-se: Mantenha a conversa em local privado</small>');
+                                }
+                            },
+                            {
+                                text: '⬅️ Voltar ao menu',
+                                value: 'back',
+                                action: function() {
+                                    resetToMainMenu();
+                                }
+                            }
+                        ]);
+                    }, 500);
+                }, 1500);
+            }, 500);
+        }
+        
+        function showProgressMenu() {
+            addMessage('received', '📊 Meu Progresso<div class="time">Hoje</div>');
+            
+            setTimeout(() => {
+                const progressHTML = `
+                    <strong>✅ ${soberDays} dias limpo</strong>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${Math.min(100, soberDays)}%;"></div>
+                    </div>
+                    <p>Última atualização: ${lastSoberDate || 'Nunca'}</p>
+                `;
+                
+                const progressCard = document.createElement('div');
+                progressCard.className = 'meditation-card';
+                progressCard.innerHTML = progressHTML;
+                content.appendChild(progressCard);
+                scrollToBottom();
+                
+                setTimeout(() => {
+                    showSystemMessage('💪 <strong>Metas:</strong><br>- 7 dias: Medalha de bronze<br>- 30 dias: Medalha de prata<br>- 90 dias: Medalha de ouro');
+                    
+                    setTimeout(() => {
+                        createOptions([
+                            {
+                                text: '🏆 Ver conquistas',
+                                value: 'achievements',
+                                action: function() {
+                                    showAchievements();
+                                }
+                            },
+                            {
+                                text: '⬅️ Voltar ao menu',
+                                value: 'back',
+                                action: function() {
+                                    resetToMainMenu();
+                                }
+                            }
+                        ]);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        function showToolsMenu() {
+            addMessage('received', '🧰 Ferramentas<div class="time">Menu</div>');
+            
+            setTimeout(() => {
+                showSystemMessage('🛠️ <strong>Ferramentas de Recuperação</strong>');
+                
+                setTimeout(() => {
+                    createOptions([
+                        {
+                            text: '📖 Os 12 Passos de NA',
+                            value: 'steps',
+                            action: function() {
+                                showTwelveSteps();
+                            }
+                        },
+                        {
+                            text: '🆘 Contatos de Emergência',
+                            value: 'emergency',
+                            action: function() {
+                                showEmergencyContacts();
+                            }
+                        },
+                        {
+                            text: '🗓️ Agenda de Reuniões',
+                            value: 'meetings',
+                            action: function() {
+                                showMeetingsSchedule();
+                            }
+                        },
+                        {
+                            text: '⬅️ Voltar ao menu',
+                            value: 'back',
+                            action: function() {
+                                resetToMainMenu();
+                                }
+                            }
+                        ]);
+                    }, 500);
+                }, 500);
+            }
+            
+            // Funções auxiliares específicas
+            function showPrayer(title, text) {
+                addMessage('received', `🙏 Oração de ${title}<div class="time">Agora</div>`);
+                
+                setTimeout(() => {
+                    const prayerCard = document.createElement('div');
+                    prayerCard.className = 'meditation-card';
+                    prayerCard.innerHTML = `
+                        <strong>${title}</strong>
+                        <p style="margin-top:8px;">${text}</p>
+                    `;
+                    content.appendChild(prayerCard);
+                    scrollToBottom();
+                }, 500);
+            }
+            
+            function showStoicQuote() {
+                const quote = getRandomStoicQuote();
+                showSystemMessage(`💭 <strong>Reflexão Estoica:</strong><br>"${quote}"`);
+            }
+            
+            function resetToMainMenu() {
+                content.scrollTo({top: 0, behavior: 'smooth'});
+                setTimeout(() => {
+                    content.innerHTML = '';
+                    const welcomeMsg = document.createElement('div');
+                    welcomeMsg.className = 'system-message';
+                    welcomeMsg.innerHTML = '<strong>🕊️ Bem-vindo ao Libertas</strong><br>Seu companheiro de recuperação com NA, Estoicismo e Fé.';
+                    content.appendChild(welcomeMsg);
+                    
+                    mainOptions.style.display = 'flex';
+                    scrollToBottom();
+                }, 300);
+            }
+            
+            // Dados do app
+            function getRandomStoicQuote() {
+                const quotes = [
+                    "Você tem poder sobre sua mente - não sobre eventos externos. Perceba isso, e você encontrará força. — Marco Aurélio",
+                    "Não é o que acontece com você, mas como você reage que importa. — Epicteto",
+                    "A dificuldade mostra o que os homens são. — Epicteto",
+                    "Quanto mais valorizamos coisas fora do nosso controle, menos controle temos. — Epicteto",
+                    "Se você sofre por causas externas, não são elas que o perturbam, mas sim o seu próprio julgamento sobre elas. — Marco Aurélio"
+                ];
+                return quotes[Math.floor(Math.random() * quotes.length)];
+            }
+            
+            function getDailyMeditation() {
+                const meditations = [
+                    {
+                        title: "Aceitação (Passo 1 de NA)",
+                        text: "Admitimos que éramos impotentes perante nossa dependência - que nossas vidas tinham se tornado incontroláveis.",
+                        source: "Narcóticos Anônimos"
+                    },
+                    {
+                        title: "Amor Fati",
+                        text: "Ame seu destino (amor fati). Tudo o que acontece foi destinado a acontecer e contribui para seu crescimento.",
+                        source: "Estoicismo"
+                    },
+                    {
+                        title: "Salmo 23",
+                        text: "O Senhor é meu pastor, nada me faltará. Faz-me repousar em pastos verdejantes. Guia-me mansamente a águas tranquilas.",
+                        source: "Bíblia Sagrada"
+                    }
+                ];
+                return meditations[Math.floor(Math.random() * meditations.length)];
+            }
+            
+            function showTwelveSteps() {
+                addMessage('received', '📖 Os 12 Passos de NA<div class="time">Informação</div>');
+                
+                setTimeout(() => {
+                    const steps = `
+                        <div style="text-align:left;">
+                            <p><strong>1.</strong> Admitimos nossa impotência perante a droga</p>
+                            <p><strong>2.</strong> Acreditamos que um Poder maior pode nos devolver a sanidade</p>
+                            <p><strong>3.</strong> Decidimos entregar nossa vontade aos cuidados de Deus</p>
+                            <p>...</p>
+                            <p><strong>12.</strong> Tendo experimentado um despertar espiritual, procuramos levar esta mensagem a outros dependentes</p>
+                        </div>
+                    `;
+                    
+                    showSystemMessage(`📖 <strong>Os 12 Passos de NA</strong>${steps}`);
+                }, 500);
+            }
+            
+            function showEmergencyContacts() {
+                addMessage('received', '🆘 Contatos de Emergência<div class="time">Agora</div>');
+                
+                setTimeout(() => {
+                    createOptions([
+                        {
+                            text: '📞 CAPS AD - 136',
+                            class: 'emergency-btn',
+                            value: 'caps',
+                            action: function() {
+                                showSystemMessage('☎️ <strong>Central de Atendimento:</strong><br>Ligue para 136 (SUS) ou procure o CAPS mais próximo');
+                            }
+                        },
+                        {
+                            text: '📱 CVV - 188',
+                            class: 'emergency-btn',
+                            value: 'cvv',
+                            action: function() {
+                                showSystemMessage('💙 <strong>Centro de Valorização da Vida:</strong><br>Ligue 188 para apoio emocional 24h');
+                            }
+                        },
+                        {
+                            text: '👨‍👩‍👧‍👦 Amor-Exigente',
+                            class: 'emergency-btn',
+                            value: 'amor',
+                            action: function() {
+                                showSystemMessage('👪 <strong>Amor-Exigente:</strong><br>0800 022 2001<br>Atendimento para familiares');
+                            }
+                        }
+                    ]);
+                }, 500);
+            }
+            
+            function showMeetingsSchedule() {
+                addMessage('received', '🗓️ Agenda de Reuniões<div class="time">Hoje</div>');
+                
+                setTimeout(() => {
+                    const schedule = `
+                        <div style="text-align:left;">
+                            <p><strong>NA Online:</strong> 10h, 15h, 20h</p>
+                            <p><strong>Amor-Exigente:</strong> 19h (terças)</p>
+                            <p><strong>CAPS AD:</strong> 14h (quartas)</p>
+                        </div>
+                    `;
+                    
+                    showSystemMessage(`🗓️ <strong>Próximas Reuniões</strong>${schedule}`);
+                }, 500);
+            }
+            
+            function showAchievements() {
+                addMessage('received', '🏆 Conquistas<div class="time">Progresso</div>');
+                
+                setTimeout(() => {
+                    const achievements = `
+                        <div style="text-align:left;">
+                            <p>${soberDays >= 7 ? '✅' : '◻️'} 7 dias - Medalha de Bronze</p>
+                            <p>${soberDays >= 30 ? '✅' : '◻️'} 30 dias - Medalha de Prata</p>
+                            <p>${soberDays >= 90 ? '✅' : '◻️'} 90 dias - Medalha de Ouro</p>
+                        </div>
+                    `;
+                    
+                    showSystemMessage(`🏆 <strong>Suas Conquistas</strong>${achievements}`);
+                }, 500);
+            }
+            
+            // Inicialização
+            setTimeout(() => {
+                scrollToBottom();
+            }, 300);
+        </script>
+    </body>
+    </html>
