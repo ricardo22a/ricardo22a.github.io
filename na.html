@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libertas - Mentor de NA</title>
+    <style>
+        :root {
+            --primary: #075e54;
+            --secondary: #128c7e;
+            --accent: #25d366;
+            --text: #333;
+            --bg: #e5ddd5;
+            --card: #fff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 15px;
+            padding-top: 70px;
+            padding-bottom: 70px;
+            overflow-y: auto;
+            background-image: url('https://web.whatsapp.com/img/bg-chat-tile-light_a4be512e7195b6b733d9110b408f075d.png');
+        }
+        
+        .message {
+            max-width: 85%;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .received {
+            background-color: var(--card);
+            align-self: flex-start;
+            border-top-left-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .sent {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .system-message {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            margin: 15px auto;
+            max-width: 90%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg);
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #ccc;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+        }
+        
+        .send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .na-quote {
+            background-color: #fff9e6;
+            border-left: 4px solid #f39c12;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 12px;
+            background-color: var(--card);
+            width: fit-content;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://i.imgur.com/JQ9pRoN.png" alt="Logo">
+        <div>
+            <h1>Mentor de NA</h1>
+            <p style="font-size: 12px;">Baseado no Livro Narcóticos Anônimos</p>
+        </div>
+    </div>
+    
+    <div class="content" id="content">
+        <div class="system-message">
+            <strong>📘 Bem-vindo ao Mentor de NA</strong><br>
+            Faça perguntas sobre recuperação e receba respostas diretas do livro Narcóticos Anônimos (Capa Azul).
+        </div>
+        
+        <div class="message received">
+            Exemplo: "O que diz o Primeiro Passo?" ou "Como funciona o programa de NA?"
+            <div class="time">Agora</div>
+        </div>
+    </div>
+    
+    <div class="input-area">
+        <input type="text" class="input-field" id="userInput" placeholder="Digite sua pergunta sobre NA...">
+        <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+
+    <script>
+        // Base de conhecimento do Livro NA (Capa Azul) - Trechos principais
+        const naKnowledgeBase = [
+            {
+                question: "Primeiro Passo",
+                answer: "Admitimos que éramos impotentes perante a nossa dependência, que tínhamos perdido o domínio sobre nossas vidas. (p. 17)",
+                page: "17"
+            },
+            {
+                question: "Segundo Passo",
+                answer: "Viemos a acreditar que um Poder maior do que nós poderia devolver-nos à sanidade. (p. 19)",
+                page: "19"
+            },
+            {
+                question: "Terceiro Passo",
+                answer: "Decidimos entregar nossa vontade e nossa vida aos cuidados de Deus, da maneira como O concebíamos. (p. 20)",
+                page: "20"
+            },
+            {
+                question: "O que é NA",
+                answer: "Narcóticos Anônimos é uma irmandade sem fins lucrativos, para homens e mulheres, para os quais as drogas se tornaram um problema grave. (p. 5)",
+                page: "5"
+            },
+            {
+                question: "Só por hoje",
+                answer: "Só por hoje, terei fé em alguém de NA que acredita em mim e quer me ajudar apesar dos meus defeitos. (p. 83)",
+                page: "83"
+            },
+            {
+                question: "Doença",
+                answer: "A dependência é uma doença progressiva, incurável e fatal. (p. 10)",
+                page: "10"
+            },
+            {
+                question: "Recuperação",
+                answer: "A recuperação começa quando paramos de usar drogas e continuamos crescendo emocionalmente e espiritualmente. (p. 15)",
+                page: "15"
+            },
+            {
+                question: "Reuniões",
+                answer: "As reuniões são o coração de NA. Através delas, compartilhamos nossa experiência, força e esperança. (p. 25)",
+                page: "25"
+            },
+            {
+                question: "Patrocinador",
+                answer: "Um patrocinador é um membro de NA que nos ajuda a trabalhar os passos e compartilha sua experiência. (p. 30)",
+                page: "30"
+            }
+        ];
+
+        // Elementos DOM
+        const content = document.getElementById('content');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        // Função para adicionar mensagem
+        function addMessage(type, text) {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.innerHTML = text;
+            content.appendChild(message);
+            content.scrollTop = content.scrollHeight;
+        }
+        
+        // Função para mostrar resposta
+        function showResponse(question) {
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            content.appendChild(typingIndicator);
+            content.scrollTop = content.scrollHeight;
+            
+            setTimeout(() => {
+                content.removeChild(typingIndicator);
+                
+                const lowerQuestion = question.toLowerCase();
+                let found = false;
+                
+                // Busca na base de conhecimento
+                for (const item of naKnowledgeBase) {
+                    if (lowerQuestion.includes(item.question.toLowerCase())) {
+                        addMessage('received', `
+                            <strong>${item.question}</strong><br>
+                            <div class="na-quote">${item.answer}</div>
+                            <div class="time">Livro NA, p. ${item.page}</div>
+                        `);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    // Resposta genérica se não encontrar
+                    const randomResponses = [
+                        "Isso não consta no texto básico de NA. Sugiro discutir em uma reunião.",
+                        "O livro NA não aborda especificamente isso. O que mais você gostaria de saber?",
+                        "Sobre esse tema, NA sugere conversar com seu padrinho ou grupo de apoio."
+                    ];
+                    
+                    addMessage('received', `
+                        ${randomResponses[Math.floor(Math.random() * randomResponses.length)]}
+                        <div class="time">Mentor de NA</div>
+                    `);
+                }
+            }, 1500);
+        }
+        
+        // Event listeners
+        sendBtn.addEventListener('click', () => {
+            const question = userInput.value.trim();
+            if (question) {
+                addMessage('sent', `
+                    ${question}
+                    <div class="time">Agora</div>
+                `);
+                userInput.value = '';
+                showResponse(question);
+            }
+        });
+        
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
